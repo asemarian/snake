@@ -40,19 +40,34 @@ document.addEventListener("keydown", ({ keyCode }) => {
     }
 });
 
+const getRandomPosition = () => {
+    return {
+        x: cell * Math.floor(Math.random() * 20),
+        y: cell * Math.floor(Math.random() * 20)
+    }
+}
+let food = getRandomPosition();
+let head;
 setInterval(() => {
-
+    // clear screen
     context.fillStyle = "black";
     context.fillRect(0, 0, 500, 500);
+    // draw snake
     for (let box of snake) {
-        context.fillStyle = "magenta";
+        context.fillStyle = "lime";
         context.fillRect(box.x, box.y, cell, cell);
+        context.strokeStyle = "black";
+        context.strokeRect(box.x, box.y, cell, cell)
     }
 
+    // draw food
+    context.fillStyle = "red";
+    context.fillRect(food.x, food.y, cell, cell);
 
 
+    // change snake direction
     if (direction === "left") {
-        let head = {
+        head = {
             x: snake[0].x - cell,
             y: snake[0].y
         }
@@ -70,7 +85,7 @@ setInterval(() => {
     }
 
     if (direction === "right") {
-        let head = {
+        head = {
             x: snake[0].x + cell,
             y: snake[0].y
         }
@@ -84,7 +99,7 @@ setInterval(() => {
     }
 
     if (direction === "up") {
-        let head = {
+        head = {
             x: snake[0].x,
             y: snake[0].y - cell
         }
@@ -102,7 +117,7 @@ setInterval(() => {
 
     if (direction === "down") {
         console.log(snake)
-        let head = {
+        head = {
             x: snake[0].x,
             y: snake[0].y + cell
         }
@@ -111,6 +126,11 @@ setInterval(() => {
         }
         snake.pop();
         snake.unshift(head);
+    }
+    // food collision detection 
+    if (head.x === food.x && head.y === food.y) {
+        snake.push(food)
+        food = getRandomPosition();
     }
 
 }, 100);
