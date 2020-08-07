@@ -1,12 +1,18 @@
 const canvas = document.querySelector("canvas");
 
 const context = canvas.getContext("2d");
+const startGameButton = document.querySelector("#start");
+const newGameButton = document.querySelector("#new-game");
+
+const currentScore = document.querySelector("p");
 
 const cell = 25;
+let score = 0;
+let highScore = localStorage.getItem("highScore") || 0;
 
 // context.fillStyle = "magenta";
 // context.fillRect(9 * cell, 9 * cell, cell, cell);
-const snake = [
+let snake = [
     {
         x: 9 * cell,
         y: 9 * cell
@@ -20,6 +26,8 @@ const snake = [
         y: 9 * cell
     }
 ];
+
+
 
 let direction = "left";
 document.addEventListener("keydown", ({ keyCode }) => {
@@ -57,7 +65,8 @@ const endGame = () => {
     }
 
 }
-const interval = setInterval(() => {
+
+const game = () => {
     // clear screen
     context.fillStyle = "black";
     context.fillRect(0, 0, 500, 500);
@@ -150,7 +159,7 @@ const interval = setInterval(() => {
         }
         if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
             context.fillStyle = "#00000080";
-            context.fillRect(0, 0, 500, 500)
+            context.fillRect(0, 0, 500, 500);
             clearInterval(interval);
         }
         snake.pop();
@@ -160,6 +169,10 @@ const interval = setInterval(() => {
     if (head.x === food.x && head.y === food.y) {
         snake.push(food)
         food = getRandomPosition();
+        score++;
+        currentScore.textContent = score > highScore ? `New High Score: ${score}` : `Score: ${score}`;
+        highScore = score > highScore ? score : highScore;
+        localStorage.setItem("highScore", highScore);
     }
 
     // self collision detection 
@@ -169,4 +182,26 @@ const interval = setInterval(() => {
     //     }
     // }
 
-}, 100);
+}
+
+let interval = setInterval(game, 100);
+let newInterval;
+newGameButton.onclick = () => {
+    snake = [
+        {
+            x: 9 * cell,
+            y: 9 * cell
+        },
+        {
+            x: 10 * cell,
+            y: 9 * cell
+        },
+        {
+            x: 11 * cell,
+            y: 9 * cell
+        }
+    ];
+    direction = "left";
+    food = getRandomPosition();
+    window.location.reload();
+}
