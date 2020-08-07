@@ -48,16 +48,24 @@ const getRandomPosition = () => {
 }
 let food = getRandomPosition();
 let head;
-setInterval(() => {
+
+const endGame = () => {
+    if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
+        context.globalAlpha = 0.5;
+        ;
+        clearInterval(interval);
+    }
+
+}
+const interval = setInterval(() => {
     // clear screen
     context.fillStyle = "black";
     context.fillRect(0, 0, 500, 500);
+    // context.globalAlpha = "0.1"
     // draw snake
     for (let box of snake) {
         context.fillStyle = "lime";
         context.fillRect(box.x, box.y, cell, cell);
-        context.strokeStyle = "black";
-        context.strokeRect(box.x, box.y, cell, cell)
     }
 
     // draw food
@@ -74,6 +82,12 @@ setInterval(() => {
 
         if (head.x < 0) {
             head.x = 475;
+        }
+        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
+            context.fillStyle = "#00000080";
+            context.fillRect(0, 0, 500, 500)
+                ;
+            clearInterval(interval);
         }
 
         // console.log(snake)
@@ -93,7 +107,12 @@ setInterval(() => {
         if (head.x === 500) {
             head.x = 0;
         }
-
+        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
+            context.fillStyle = "#00000080";
+            context.fillRect(0, 0, 500, 500)
+                ;
+            clearInterval(interval);
+        }
         snake.unshift(head);
         snake.pop();
     }
@@ -107,7 +126,12 @@ setInterval(() => {
             head.y = 475;
         }
         // console.log(head)
-
+        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
+            context.fillStyle = "#00000080";
+            context.fillRect(0, 0, 500, 500)
+                ;
+            clearInterval(interval);
+        }
 
         snake.pop();
         snake.unshift(head);
@@ -124,6 +148,11 @@ setInterval(() => {
         if (head.y === 500) {
             head.y = 0;
         }
+        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
+            context.fillStyle = "#00000080";
+            context.fillRect(0, 0, 500, 500)
+            clearInterval(interval);
+        }
         snake.pop();
         snake.unshift(head);
     }
@@ -132,5 +161,12 @@ setInterval(() => {
         snake.push(food)
         food = getRandomPosition();
     }
+
+    // self collision detection 
+    // for (let cell of snake) {
+    //     if (cell.x === head.x && cell.y === head.y) {
+    //         clearInterval(interval);
+    //     }
+    // }
 
 }, 100);
