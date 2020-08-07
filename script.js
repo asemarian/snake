@@ -1,17 +1,14 @@
 const canvas = document.querySelector("canvas");
-
 const context = canvas.getContext("2d");
-const startGameButton = document.querySelector("#start");
 const newGameButton = document.querySelector("#new-game");
-
 const currentScore = document.querySelector("p");
-
+const eatingSound = new Audio("./audio/eating.wav");
+const losingSound = new Audio("./audio/losing.wav");
+const newGameSound = new Audio("./audio/newgame.wav");
 const cell = 25;
-let score = 0;
+let score = 0, head, food;
 let highScore = localStorage.getItem("highScore") || 0;
-
-// context.fillStyle = "magenta";
-// context.fillRect(9 * cell, 9 * cell, cell, cell);
+let direction = "left";
 let snake = [
     {
         x: 9 * cell,
@@ -27,11 +24,7 @@ let snake = [
     }
 ];
 
-
-
-let direction = "left";
 document.addEventListener("keydown", ({ keyCode }) => {
-    console.log(keyCode);
     switch (keyCode) {
         case 37:
             direction = direction === "right" ? "right" : "left";
@@ -54,23 +47,24 @@ const getRandomPosition = () => {
         y: cell * Math.floor(Math.random() * 20)
     }
 }
-let food = getRandomPosition();
-let head;
 
-const endGame = () => {
+const checkSelfCollision = () => {
     if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-        context.globalAlpha = 0.5;
-        ;
+        context.fillStyle = "#00000080";
+        context.fillRect(0, 0, 500, 500);
+        losingSound.currentTime = 0;
+        losingSound.play();
         clearInterval(interval);
     }
-
 }
+
+food = getRandomPosition();
 
 const game = () => {
     // clear screen
     context.fillStyle = "black";
     context.fillRect(0, 0, 500, 500);
-    // context.globalAlpha = "0.1"
+
     // draw snake
     for (let box of snake) {
         context.fillStyle = "lime";
@@ -81,8 +75,7 @@ const game = () => {
     context.fillStyle = "red";
     context.fillRect(food.x, food.y, cell, cell);
 
-
-    // change snake direction
+    // change snake head direction
     if (direction === "left") {
         head = {
             x: snake[0].x - cell,
@@ -92,19 +85,11 @@ const game = () => {
         if (head.x < 0) {
             head.x = 475;
         }
-        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-            context.fillStyle = "#00000080";
-            context.fillRect(0, 0, 500, 500)
-                ;
-            clearInterval(interval);
-        }
 
-        // console.log(snake)
-        // console.log(head)
+        checkSelfCollision();
+
         snake.pop();
-
         snake.unshift(head);
-
     }
 
     if (direction === "right") {
@@ -116,12 +101,9 @@ const game = () => {
         if (head.x === 500) {
             head.x = 0;
         }
-        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-            context.fillStyle = "#00000080";
-            context.fillRect(0, 0, 500, 500)
-                ;
-            clearInterval(interval);
-        }
+
+        checkSelfCollision();
+
         snake.unshift(head);
         snake.pop();
     }
@@ -131,40 +113,33 @@ const game = () => {
             x: snake[0].x,
             y: snake[0].y - cell
         }
+
         if (head.y < 0) {
             head.y = 475;
         }
-        // console.log(head)
-        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-            context.fillStyle = "#00000080";
-            context.fillRect(0, 0, 500, 500)
-                ;
-            clearInterval(interval);
-        }
+
+        checkSelfCollision();
 
         snake.pop();
         snake.unshift(head);
-        // console.log(snake)
-
     }
 
     if (direction === "down") {
-        console.log(snake)
         head = {
             x: snake[0].x,
             y: snake[0].y + cell
         }
+
         if (head.y === 500) {
             head.y = 0;
         }
-        if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-            context.fillStyle = "#00000080";
-            context.fillRect(0, 0, 500, 500);
-            clearInterval(interval);
-        }
+
+        checkSelfCollision();
+
         snake.pop();
         snake.unshift(head);
     }
+
     // food collision detection 
     if (head.x === food.x && head.y === food.y) {
         snake.push(food)
@@ -173,20 +148,16 @@ const game = () => {
         currentScore.textContent = score > highScore ? `New High Score: ${score}` : `Score: ${score}`;
         highScore = score > highScore ? score : highScore;
         localStorage.setItem("highScore", highScore);
+        eatingSound.currentTime = 0;
+        eatingSound.play();
     }
-
-    // self collision detection 
-    // for (let cell of snake) {
-    //     if (cell.x === head.x && cell.y === head.y) {
-    //         clearInterval(interval);
-    //     }
-    // }
-
 }
 
 let interval = setInterval(game, 100);
-let newInterval;
-newGameButton.onclick = () => {
+
+const newGame = () => {
+    newGameSound.currentTime = 0;
+    newGameSound.play();
     snake = [
         {
             x: 9 * cell,
@@ -202,6 +173,11 @@ newGameButton.onclick = () => {
         }
     ];
     direction = "left";
+    score = 0;
+    currentScore.textContent = "Score: 0";
     food = getRandomPosition();
-    window.location.reload();
+    clearInterval(interval);
+    interval = setInterval(game, 100);
 }
+
+newGameButton.addEventListener("click", newGame);
