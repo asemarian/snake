@@ -50,10 +50,13 @@ const getRandomPosition = () => {
 
 const checkSelfCollision = () => {
     if (snake.some(cell => head.x === cell.x && head.y === cell.y)) {
-        context.fillStyle = "#00000080";
+        context.fillStyle = "rgba(0, 0, 0, 0.7)";
         context.fillRect(0, 0, 500, 500);
         losingSound.currentTime = 0;
         losingSound.play();
+        context.fillStyle = "white";
+        context.font = "45px VT323";
+        context.fillText("Game Over", 168, 250);
         clearInterval(interval);
     }
 }
